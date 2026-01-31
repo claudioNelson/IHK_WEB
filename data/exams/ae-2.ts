@@ -200,10 +200,7 @@ Ermitteln Sie den minimalen Score-Wert.
 Beispiel-Ausgabe: minimaler Score = 21`,
                     type: "code",
                     points: 5,
-                    hint: `1. minimum = treffer[0].score
-2. Für i = 1 bis laenge(treffer)-1:
-   - Wenn treffer[i].score < minimum → minimum = treffer[i].score
-3. Rückgabe: minimum`,
+                    hint: "Initialisieren Sie minimum mit dem ersten Element und durchlaufen Sie dann das Array.",
                 },
             ],
         },
@@ -242,13 +239,7 @@ Erstellen Sie ein relationales Datenmodell in der 3. Normalform.
 Hinweis: Adresse muss nicht normalisiert werden.`,
                     type: "diagram",
                     points: 25,
-                    hint: `Tabellen:
-1. Mitarbeiter (ID PK, Anrede, Name, Geburtsdatum, Adresse)
-2. Vorfall (ID PK, MA_ID FK, VorfallTyp_ID FK, Datum, Bearbeiter_ID FK)
-3. VorfallTyp (ID PK, Bezeichnung)
-4. Dokument (ID PK, Bezeichnung)
-5. Vorfall_Dokument (Vorfall_ID FK, Dokument_ID FK)
-6. Bearbeiter (ID PK, Name)`,
+                    hint: "Welche Daten wiederholen sich? Dokumente kommen mehrfach vor - wie lösen Sie das auf?"
                 },
             ],
         },
@@ -305,10 +296,7 @@ Merkmal:
                     description: `Liste aller Gebäude mit deren Räumen, sortiert nach Bezeichnung und RaumTyp.`,
                     type: "code",
                     points: 5,
-                    hint: `SELECT Gebaeude.*, Raum.*
-FROM Gebaeude
-JOIN Raum ON Gebaeude.GebID = Raum.GebID
-ORDER BY Bezeichnung, RaumTyp`,
+                    hint: "Welche Tabellen müssen Sie JOINen? Wie sortieren Sie nach mehreren Spalten?",
                 },
                 {
                     id: "hs5-b",
@@ -316,9 +304,7 @@ ORDER BY Bezeichnung, RaumTyp`,
                     description: `Liste aller Zugangsdaten mit dazugehörigen Personendaten.`,
                     type: "code",
                     points: 5,
-                    hint: `SELECT Person.*, Zugang.*
-FROM Person
-RIGHT JOIN Zugang ON Person.PersID = Zugang.PersID`,
+                    hint: "Was ist der Unterschied zwischen LEFT JOIN und RIGHT JOIN?",
                 },
                 {
                     id: "hs5-c",
@@ -332,10 +318,7 @@ Erwartete Ausgabe:
 | Fingerabdruck | 6            |`,
                     type: "code",
                     points: 6,
-                    hint: `SELECT Merkmal.Merkmal, COUNT(*) AS AnzahlRaeume
-FROM Merkmal
-JOIN Raum ON Merkmal.MerkID = Raum.MerkID
-GROUP BY Merkmal.Merkmal`,
+                    hint: "Welche Aggregatfunktion zählt Zeilen? Wie gruppieren Sie nach Merkmal?",
                 },
                 {
                     id: "hs5-d",
@@ -343,10 +326,7 @@ GROUP BY Merkmal.Merkmal`,
                     description: `Liste der Zugangsdaten von Max Müller (nur Name bekannt).`,
                     type: "code",
                     points: 6,
-                    hint: `SELECT Person.Nachname, Person.Vorname, Zugang.*
-FROM Person
-JOIN Zugang ON Person.PersID = Zugang.PersID
-WHERE Nachname = 'Müller' AND Vorname = 'Max'`,
+                    hint: "Wie filtern Sie nach einem bestimmten Namen? Welche Tabellen verknüpfen Person und Zugang?",
                 },
                 {
                     id: "hs5-e",
@@ -354,8 +334,7 @@ WHERE Nachname = 'Müller' AND Vorname = 'Max'`,
                     description: `Liste aller Personen aus PLZ-Gebiet 50000-59999.`,
                     type: "code",
                     points: 3,
-                    hint: `SELECT * FROM Person
-WHERE Plz BETWEEN 50000 AND 59999`,
+                    hint: "BETWEEN eignet sich gut für Bereichsabfragen.",
                 },
             ],
         },

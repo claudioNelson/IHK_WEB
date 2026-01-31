@@ -38,7 +38,7 @@ SERVERKOMPONENTEN:
 - Position 4: 6x HDD SAS, 12 Gbit/s, 900 GiByte, hot-plug-fähig, 2,5 Zoll
 - Position 5: Hardware-RAID-Controller, SAS/SATA 12 Gbit/s, RAID-Level: 0, 1, 10, 5, 50, 6, 60
 - Position 6: 2x hot-plug-Netzteil`,
-                    type: "freeText",
+                    type: "info",
                     points: 0,
                     hint: "Dies ist die Ausgangssituation für die folgenden Aufgaben.",
                 },
@@ -289,7 +289,7 @@ VERGEBENE BERECHTIGUNGEN FÜR ORDNER "PROJEKTE":
 - Befristete: Lesen
 - OrdnerAdmins: Ändern (Modify)
 - ITAdmins: Vollzugriff`,
-                    type: "freeText",
+                    type: "info",
                     points: 0,
                     hint: "Dies ist die Ausgangssituation für die folgenden Aufgaben.",
                 },
@@ -374,7 +374,7 @@ Verwenden Sie dazu:
                     description: `Die DataCenter Solutions AG möchte ihr Netzwerk für IPv6 vorbereiten. Sie sollen bei der Vorbereitung mitwirken.
 
 In einem Handbuch zu IPv6 werden folgende Fachbegriffe erläutert.`,
-                    type: "freeText",
+                    type: "info",
                     points: 0,
                     hint: "Dies ist die Ausgangssituation für die folgenden Aufgaben.",
                 },

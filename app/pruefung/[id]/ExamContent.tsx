@@ -134,6 +134,20 @@ export default function ExamContent({ exam }: ExamContentProps) {
           </p>
         </div>
 
+        {/* Szenario */}
+        {exam.scenario && (
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <details>
+              <summary className="font-semibold text-gray-800 cursor-pointer">
+                📖 Ausgangssituation (klicken zum Ein-/Ausblenden)
+              </summary>
+              <p className="text-gray-700 text-sm whitespace-pre-line mt-2">
+                {exam.scenario}
+              </p>
+            </details>
+          </div>
+        )}
+
         {/* Timer, Navigation & Fortschritt */}
         <div className="mb-6 sticky top-4 z-10 space-y-2">
           <ExamTimer

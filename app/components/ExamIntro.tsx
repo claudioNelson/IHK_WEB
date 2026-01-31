@@ -1,6 +1,7 @@
 "use client";
 
 import { Exam } from "@/data/exam-types";
+import Link from "next/link";
 
 interface ExamIntroProps {
     exam: Exam;
@@ -9,18 +10,31 @@ interface ExamIntroProps {
 
 export default function ExamIntro({ exam, onStart }: ExamIntroProps) {
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-8">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-8 border border-gray-100">
                 
                 {/* Header */}
-                <div className="text-center mb-8">
+                <div className="text-center mb-6">
+                    <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full mb-4">
+                        {exam.season} {exam.year}
+                    </span>
                     <h1 className="text-2xl font-bold text-gray-800">
                         {exam.title}
                     </h1>
-                    <p className="text-gray-600 mt-2">
-                        {exam.company} • {exam.season} {exam.year}
+                    <p className="text-gray-500 text-sm mt-2">
+                        {exam.company}
                     </p>
                 </div>
+
+                {/* Ausgangssituation - DAS IST DER WICHTIGE TEIL */}
+                {exam.scenario && (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                        <h2 className="font-semibold text-gray-800 mb-2">📖 Ausgangssituation</h2>
+                        <p className="text-gray-700 text-sm whitespace-pre-line">
+                            {exam.scenario}
+                        </p>
+                    </div>
+                )}
 
                 {/* Prüfungsinfos */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -32,7 +46,7 @@ export default function ExamIntro({ exam, onStart }: ExamIntroProps) {
                     </ul>
                 </div>
 
-                {/* Hinweise */}
+                {/* Wichtige Hinweise */}
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
                     <h2 className="font-semibold text-amber-800 mb-2">⚠️ Wichtige Hinweise</h2>
                     <ul className="text-amber-700 space-y-2 text-sm">
@@ -60,17 +74,17 @@ export default function ExamIntro({ exam, onStart }: ExamIntroProps) {
 
                 {/* Buttons */}
                 <div className="flex gap-4">
-                    <a 
-                        href="/"
-                        className="flex-1 py-3 px-6 border border-gray-300 rounded-lg text-center text-gray-700 hover:bg-gray-50 transition"
+                    <Link 
+                        href="/pruefungen" 
+                        className="flex-1 py-3 px-6 border border-gray-300 text-gray-700 rounded-lg font-medium text-center hover:bg-gray-50 transition"
                     >
                         ← Zurück
-                    </a>
+                    </Link>
                     <button
                         onClick={onStart}
-                        className="flex-1 py-3 px-6 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+                        className="flex-1 py-3 px-6 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition shadow-lg"
                     >
-                        🚀 Prüfung starten
+                        Prüfung starten
                     </button>
                 </div>
             </div>

@@ -27,30 +27,12 @@ Sie sollen vier der folgenden fünf Handlungsschritte bearbeiten:
                 {
                     id: "hs1-intro",
                     title: "Ausgangssituation - Netzwerkplanung",
-                    description: `Für das neue Gebäude soll das Netzwerk in verschiedene Segmente aufgeteilt werden. Sie haben folgende VLAN-Struktur geplant:
-VLAN-KONFIGURATION:
-- VLAN 10 - Büro
-  - Beschreibung: Verwaltung und Vertrieb
-  - IP-Adressbereich: 10.10.10.0/24
-- VLAN 20 - Entwicklung
-  - Beschreibung: Software-Entwickler und QA
-  - IP-Adressbereich: 10.10.20.0/24
-- VLAN 30 - Server
-  - Beschreibung: Interne Server und IT-Administration
-  - IP-Adressbereich: 10.10.30.0/27
-- VLAN 40 - Besucher
-  - Beschreibung: Gäste-WLAN und Besprechungsräume
-  - IP-Adressbereich: 10.10.40.0/24
-NETZWERKAUFBAU:
-- Erdgeschoss und 1. OG: Je ein Access-Switch (Layer 2)
-- Serverraum: Core-Switch (Layer 3) für Inter-VLAN-Routing
-- Firewall mit drei Zonen:
-  - LAN: 10.20.1.1/30 (zum Core-Switch)
-  - DMZ: 10.20.2.0/29 (Webserver, Mailgateway)
-  - WAN: 203.0.113.2/30 (Internet-Anbindung)
-- Zentraler DHCP-Server im VLAN 30`,
+                    description: `Für das neue Gebäude soll das Netzwerk in verschiedene Segmente aufgeteilt werden. 
+
+Die geplante VLAN-Struktur und der Netzwerkaufbau sind im folgenden Diagramm dargestellt:`,
                     type: "info",
                     points: 0,
+                    image: "/images/si1-netzwerk.png",
                 },
                 {
                     id: "hs1-a",
@@ -275,7 +257,7 @@ Eingabe: Thomas Müller, Abteilung: Entwicklung
 → Benutzername: tmueller
 → E-Mail: tmueller@meditech-solutions.de
 → Gruppe: GRP_Entwicklung`,
-                    type: "freeText",
+                    type: "info",
                     points: 0,
                     hint: "Dies ist die Ausgangssituation für die folgenden Aufgaben.",
                 },
@@ -420,7 +402,7 @@ Erläutern Sie die Vorteile dieser kombinierten Strategie.`,
 
 - NAS-A: Hochperformanter Speicher für aktive Projektdaten
 - NAS-B: Kosteneffizienter Speicher für Archivierung und Backup`,
-                    type: "freeText",
+                    type: "info",
                     points: 0,
                     hint: "Dies ist die Ausgangssituation für die folgenden Aufgaben.",
                 },
