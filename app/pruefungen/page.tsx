@@ -4,194 +4,218 @@ import Link from "next/link";
 import { examList } from "@/data/exams";
 
 export default function PruefungenPage() {
-  // Prüfungen nach Typ trennen
   const aeExams = examList.filter((exam) => exam.id.startsWith("ae-"));
   const siExams = examList.filter((exam) => exam.id.startsWith("si-"));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
-      <style jsx>{`
-        .display-font {
-          font-family: 'Georgia', serif;
+    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#FFFFFF", color: "#0F0F0F", minHeight: "100vh" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        .pruef-nav {
+          position: sticky; top: 0; z-index: 50;
+          padding: 16px 40px;
+          display: flex; align-items: center; justify-content: space-between;
+          background: rgba(255,255,255,0.95);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(79,70,229,0.15);
         }
-        
-        .card-hover {
-          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .nav-logo {
+          font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 800;
+          background: linear-gradient(135deg, #3730A3 0%, #6366F1 100%);
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+          text-decoration: none;
         }
-        
-        .card-hover:hover {
-          transform: translateY(-8px) scale(1.02);
-          box-shadow: 0 20px 40px rgba(0,61,130,0.15);
+        .back-btn {
+          display: flex; align-items: center; gap: 8px;
+          color: #6B7280; text-decoration: none; font-size: 14px;
+          font-weight: 500; transition: all 0.2s;
+          padding: 8px 16px; border-radius: 8px;
+          border: 1px solid #E5E7EB;
+          background: #FFFFFF;
         }
-        
-        .gradient-text {
-          background: linear-gradient(135deg, #003d82 0%, #ff6b35 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+        .back-btn:hover { color: #4F46E5; border-color: rgba(79,70,229,0.3); transform: translateX(-3px); }
+
+        .hero-section { padding: 56px 40px 36px; text-align: center; background: linear-gradient(135deg, #FAFAFF 0%, #F5F3FF 100%); }
+        .hero-badge {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(79,70,229,0.08); border: 1px solid rgba(79,70,229,0.2);
+          padding: 7px 16px; border-radius: 100px;
+          font-size: 12px; font-weight: 700; color: #4F46E5;
+          letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px;
         }
-        
-        .btn-back {
-          transition: all 0.3s ease;
+        .hero-title {
+          font-family: 'Nunito', sans-serif;
+          font-size: clamp(32px, 5vw, 52px);
+          font-weight: 800; letter-spacing: -2px;
+          line-height: 1.05; margin-bottom: 14px; color: #111;
         }
-        
-        .btn-back:hover {
-          transform: translateX(-5px);
+        .hero-title span {
+          background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-sub { color: #6B7280; font-size: 16px; max-width: 480px; margin: 0 auto; line-height: 1.6; }
+
+        .content-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 40px 100px; }
+
+        .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; margin-top: 44px; }
+        .section-icon {
+          width: 48px; height: 48px; border-radius: 12px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 20px; flex-shrink: 0;
+        }
+        .section-icon.ae { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+        .section-icon.si { background: linear-gradient(135deg, #10B981, #059669); }
+        .section-title-text {
+          font-family: 'Nunito', sans-serif;
+          font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: #111;
+        }
+        .section-count { color: #9CA3AF; font-size: 13px; margin-top: 2px; }
+
+        .exams-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 14px;
+        }
+        .exam-card {
+          background: #FFFFFF;
+          border: 1px solid #E5E7EB;
+          border-radius: 16px; padding: 22px;
+          text-decoration: none; color: inherit;
+          transition: all 0.25s ease;
+          display: block; position: relative; overflow: hidden;
+        }
+        .exam-card::before {
+          content: ''; position: absolute;
+          top: 0; left: 0; right: 0; height: 3px;
+          opacity: 0; transition: opacity 0.25s;
+        }
+        .exam-card.ae::before { background: linear-gradient(90deg, #3B82F6, #6366F1); }
+        .exam-card.si::before { background: linear-gradient(90deg, #10B981, #059669); }
+        .exam-card:hover {
+          border-color: rgba(79,70,229,0.2);
+          box-shadow: 0 8px 24px rgba(79,70,229,0.15);
+          transform: translateY(-3px);
+        }
+        .exam-card:hover::before { opacity: 1; }
+
+        .exam-badge {
+          display: inline-flex; padding: 4px 12px;
+          border-radius: 100px; font-size: 11px; font-weight: 700;
+          letter-spacing: 0.5px; margin-bottom: 12px;
+        }
+        .exam-badge.ae { background: rgba(59,130,246,0.08); color: #2563EB; border: 1px solid rgba(59,130,246,0.2); }
+        .exam-badge.si { background: rgba(16,185,129,0.08); color: #059669; border: 1px solid rgba(16,185,129,0.2); }
+
+        .exam-title { font-size: 15px; font-weight: 700; margin-bottom: 5px; color: #111; line-height: 1.3; }
+        .exam-company { color: #9CA3AF; font-size: 13px; margin-bottom: 16px; }
+        .exam-meta {
+          display: flex; align-items: center; justify-content: space-between;
+          padding-top: 14px; border-top: 1px solid #F3F4F6;
+        }
+        .exam-chips { display: flex; gap: 8px; }
+        .exam-chip {
+          display: flex; align-items: center; gap: 4px;
+          color: #6B7280; font-size: 12px;
+          background: #F9FAFB; padding: 4px 10px;
+          border-radius: 6px; border: 1px solid #E5E7EB;
+        }
+        .exam-arrow { font-size: 13px; font-weight: 700; transition: transform 0.2s; }
+        .exam-card.ae .exam-arrow { color: #2563EB; }
+        .exam-card.si .exam-arrow { color: #059669; }
+        .exam-card:hover .exam-arrow { transform: translateX(4px); }
+
+        .footer-strip {
+          border-top: 1px solid #E5E7EB;
+          padding: 20px 40px; text-align: center;
+          color: #9CA3AF; font-size: 13px;
+          display: flex; justify-content: center; gap: 28px; flex-wrap: wrap;
+          background: #FFFFFF;
+        }
+        .footer-strip span { display: flex; align-items: center; gap: 6px; }
+        .footer-check { color: #4F46E5; }
+
+        @media (max-width: 768px) {
+          .pruef-nav, .hero-section, .content-wrap, .footer-strip { padding-left: 20px; padding-right: 20px; }
+          .exams-grid { grid-template-columns: 1fr; }
         }
       `}</style>
 
-      {/* Header */}
-      <header className="py-6 px-6">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="btn-back flex items-center gap-2 text-gray-600 hover:text-blue-900">
-            <span className="text-xl">←</span>
-            <span className="font-medium">Zurück zur Startseite</span>
-          </Link>
-          <div className="text-sm text-gray-500">
-            {examList.length} Prüfungen verfügbar
-          </div>
-        </div>
-      </header>
+      {/* Nav */}
+      <nav className="pruef-nav">
+        <Link href="/" className="nav-logo">Lernarena</Link>
+        <Link href="/" className="back-btn">← Startseite</Link>
+      </nav>
 
       {/* Hero */}
-      <section className="py-12 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <span className="inline-block px-4 py-2 bg-blue-900 text-white text-sm font-semibold rounded-full mb-6">
-            Prüfungssimulation
-          </span>
-          <h1 className="display-font text-5xl md:text-6xl font-bold mb-4">
-            Wähle deine{" "}
-            <span className="gradient-text">Prüfung</span>
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Realistische IHK-Prüfungssimulationen mit Timer, verschiedenen Aufgabentypen und sofortigem Feedback
-          </p>
-        </div>
+      <section className="hero-section">
+        <div className="hero-badge">Prüfungssimulation</div>
+        <h1 className="hero-title">Wähle deine <span>Prüfung</span></h1>
+        <p className="hero-sub">Realistische Simulationen mit Timer, verschiedenen Aufgabentypen und KI-Feedback.</p>
       </section>
 
-      {/* Exam Cards */}
-      <section className="py-12 px-6 pb-24">
-        <div className="max-w-6xl mx-auto">
-          
-          {/* Anwendungsentwicklung */}
-          <div className="mb-16">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center text-2xl shadow-lg">
-                💻
-              </div>
-              <div>
-                <h2 className="display-font text-3xl font-bold text-gray-800">
-                  Anwendungsentwicklung
-                </h2>
-                <p className="text-gray-500">{aeExams.length} Prüfungen</p>
-              </div>
-            </div>
+      {/* Content */}
+      <div className="content-wrap">
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {aeExams.map((exam) => (
-                <Link
-                  key={exam.id}
-                  href={`/pruefung/${exam.id}`}
-                  className="card-hover block bg-white rounded-2xl p-6 border border-gray-100 shadow-sm"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
-                      {exam.season} {exam.year}
-                    </span>
-                    <span className="text-2xl">📝</span>
-                  </div>
-                  
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">
-                    {exam.title}
-                  </h3>
-                  
-                  <p className="text-gray-500 text-sm mb-4">
-                    {exam.company}
-                  </p>
-                  
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        ⏱️ {exam.duration} Min
-                      </span>
-                      <span className="flex items-center gap-1">
-                        📊 {exam.totalPoints} Pkt
-                      </span>
-                    </div>
-                    <span className="text-blue-600 font-medium text-sm">
-                      Starten →
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Systemintegration */}
+        {/* AE */}
+        <div className="section-header">
+          <div className="section-icon ae">💻</div>
           <div>
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center text-2xl shadow-lg">
-                🖧
-              </div>
-              <div>
-                <h2 className="display-font text-3xl font-bold text-gray-800">
-                  Systemintegration
-                </h2>
-                <p className="text-gray-500">{siExams.length} Prüfungen</p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {siExams.map((exam) => (
-                <Link
-                  key={exam.id}
-                  href={`/pruefung/${exam.id}`}
-                  className="card-hover block bg-white rounded-2xl p-6 border border-gray-100 shadow-sm"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                      {exam.season} {exam.year}
-                    </span>
-                    <span className="text-2xl">📝</span>
-                  </div>
-                  
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">
-                    {exam.title}
-                  </h3>
-                  
-                  <p className="text-gray-500 text-sm mb-4">
-                    {exam.company}
-                  </p>
-                  
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        ⏱️ {exam.duration} Min
-                      </span>
-                      <span className="flex items-center gap-1">
-                        📊 {exam.totalPoints} Pkt
-                      </span>
-                    </div>
-                    <span className="text-green-600 font-medium text-sm">
-                      Starten →
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <div className="section-title-text">Anwendungsentwicklung</div>
+            <div className="section-count">{aeExams.length} Prüfungen verfügbar</div>
           </div>
-
         </div>
-      </section>
-
-      {/* Footer Info */}
-      <section className="py-8 px-6 bg-white border-t border-gray-100">
-        <div className="max-w-6xl mx-auto text-center text-gray-500 text-sm">
-          <p>
-            ✓ Echte Prüfungsbedingungen  ✓ 90 Minuten Timer  ✓ Verschiedene Aufgabentypen  ✓ Sofortiges Feedback
-          </p>
+        <div className="exams-grid">
+          {aeExams.map((exam) => (
+            <Link key={exam.id} href={`/pruefung/${exam.id}`} className="exam-card ae">
+              <div className="exam-badge ae">{exam.season} {exam.year}</div>
+              <div className="exam-title">{exam.title}</div>
+              <div className="exam-company">{exam.company}</div>
+              <div className="exam-meta">
+                <div className="exam-chips">
+                  <span className="exam-chip">⏱ {exam.duration} Min</span>
+                  <span className="exam-chip">📊 {exam.totalPoints} Pkt</span>
+                </div>
+                <span className="exam-arrow">Starten →</span>
+              </div>
+            </Link>
+          ))}
         </div>
-      </section>
+
+        {/* SI */}
+        <div className="section-header">
+          <div className="section-icon si">🖧</div>
+          <div>
+            <div className="section-title-text">Systemintegration</div>
+            <div className="section-count">{siExams.length} Prüfungen verfügbar</div>
+          </div>
+        </div>
+        <div className="exams-grid">
+          {siExams.map((exam) => (
+            <Link key={exam.id} href={`/pruefung/${exam.id}`} className="exam-card si">
+              <div className="exam-badge si">{exam.season} {exam.year}</div>
+              <div className="exam-title">{exam.title}</div>
+              <div className="exam-company">{exam.company}</div>
+              <div className="exam-meta">
+                <div className="exam-chips">
+                  <span className="exam-chip">⏱ {exam.duration} Min</span>
+                  <span className="exam-chip">📊 {exam.totalPoints} Pkt</span>
+                </div>
+                <span className="exam-arrow">Starten →</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer Strip */}
+      <div className="footer-strip">
+        <span><span className="footer-check">✓</span> Echte Prüfungsbedingungen</span>
+        <span><span className="footer-check">✓</span> 90 Minuten Timer</span>
+        <span><span className="footer-check">✓</span> KI-Tutor Feedback</span>
+        <span><span className="footer-check">✓</span> Sofortiges Ergebnis</span>
+      </div>
     </div>
   );
 }

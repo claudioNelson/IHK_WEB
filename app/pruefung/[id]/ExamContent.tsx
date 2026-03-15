@@ -10,9 +10,7 @@ import SubmitExam from "@/app/components/SubmitExam";
 import ExamResult from "@/app/components/ExamResult";
 import ExamIntro from "@/app/components/ExamIntro";
 
-interface ExamContentProps {
-  exam: Exam;
-}
+interface ExamContentProps { exam: Exam; }
 
 export default function ExamContent({ exam }: ExamContentProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -21,280 +19,318 @@ export default function ExamContent({ exam }: ExamContentProps) {
   const [submitted, setSubmitted] = useState(false);
   const [started, setStarted] = useState(false);
 
-  // Laden aus localStorage
-  // Laden aus localStorage
   useEffect(() => {
-    const savedAnswers = localStorage.getItem(`exam-${exam.id}-answers`);
-    const savedCompleted = localStorage.getItem(`exam-${exam.id}-completed`);
-    const savedSubmitted = localStorage.getItem(`exam-${exam.id}-submitted`);
-    const savedStarted = localStorage.getItem(`exam-${exam.id}-started`);
-    if (savedStarted) {
-      setStarted(JSON.parse(savedStarted));
-    }
-    if (savedAnswers) {
-      setAnswers(JSON.parse(savedAnswers));
-    }
-    if (savedCompleted) {
-      setCompleted(JSON.parse(savedCompleted));
-    }
-    if (savedSubmitted) {
-      setSubmitted(JSON.parse(savedSubmitted));
-    }
+    const s = (k: string) => localStorage.getItem(`exam-${exam.id}-${k}`);
+    if (s('started')) setStarted(JSON.parse(s('started')!));
+    if (s('answers')) setAnswers(JSON.parse(s('answers')!));
+    if (s('completed')) setCompleted(JSON.parse(s('completed')!));
+    if (s('submitted')) setSubmitted(JSON.parse(s('submitted')!));
     setLoaded(true);
   }, [exam.id]);
 
-  // Speichern in localStorage
   useEffect(() => {
-    if (loaded) {
-      localStorage.setItem(`exam-${exam.id}-answers`, JSON.stringify(answers));
-      localStorage.setItem(`exam-${exam.id}-completed`, JSON.stringify(completed));
-    }
+    if (!loaded) return;
+    localStorage.setItem(`exam-${exam.id}-answers`, JSON.stringify(answers));
+    localStorage.setItem(`exam-${exam.id}-completed`, JSON.stringify(completed));
   }, [answers, completed, exam.id, loaded]);
 
-  const updateAnswer = (questionId: string, value: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+  const updateAnswer = (id: string, val: string) => setAnswers(p => ({ ...p, [id]: val }));
+  const toggleCompleted = (id: string) => setCompleted(p => ({ ...p, [id]: !p[id] }));
+  const handleStart = () => { setStarted(true); localStorage.setItem(`exam-${exam.id}-started`, 'true'); };
+  const clearAll = () => {
+    if (!confirm("Alle Antworten löschen?")) return;
+    setAnswers({}); setCompleted({});
+    ['answers','completed'].forEach(k => localStorage.removeItem(`exam-${exam.id}-${k}`));
   };
-
-  const toggleCompleted = (questionId: string) => {
-    setCompleted((prev) => ({ ...prev, [questionId]: !prev[questionId] }));
-  };
-
-  const handleStart = () => {
-    setStarted(true);
-    localStorage.setItem(`exam-${exam.id}-started`, JSON.stringify(true));
-  };
-
-  const clearAllAnswers = () => {
-    if (confirm("Alle Antworten und Markierungen löschen?")) {
-      setAnswers({});
-      setCompleted({});
-      localStorage.removeItem(`exam-${exam.id}-answers`);
-      localStorage.removeItem(`exam-${exam.id}-completed`);
-    }
-  };
-
-  const handleSubmit = () => {
-    setSubmitted(true);
-    localStorage.setItem(`exam-${exam.id}-submitted`, JSON.stringify(true));
-  };
-
+  const handleSubmit = () => { setSubmitted(true); localStorage.setItem(`exam-${exam.id}-submitted`, 'true'); };
   const handleReset = () => {
-    if (confirm("Prüfung wirklich zurücksetzen? Alle Antworten werden gelöscht.")) {
-      setAnswers({});
-      setCompleted({});
-      setSubmitted(false);
-      localStorage.removeItem(`exam-${exam.id}-answers`);
-      localStorage.removeItem(`exam-${exam.id}-completed`);
-      localStorage.removeItem(`exam-${exam.id}-submitted`);
-    }
+    if (!confirm("Prüfung zurücksetzen?")) return;
+    setAnswers({}); setCompleted({}); setSubmitted(false);
+    ['answers','completed','submitted'].forEach(k => localStorage.removeItem(`exam-${exam.id}-${k}`));
   };
 
-  const getProgress = () => {
-    const allQuestions = exam.sections.flatMap((s) => s.questions);
-    const completedCount = allQuestions.filter((q) => completed[q.id]).length;
-    return { completed: completedCount, total: allQuestions.length };
-  };
+  const allQ = exam.sections.flatMap(s => s.questions);
+  const doneCount = allQ.filter(q => completed[q.id]).length;
+  const totalQ = allQ.length;
+  const pct = totalQ > 0 ? (doneCount / totalQ) * 100 : 0;
 
-  const progress = getProgress();
-
-  if (!loaded) {
-    return <div className="min-h-screen flex items-center justify-center">Lädt...</div>;
-  }
-
-  if (!started) {
-    return <ExamIntro exam={exam} onStart={handleStart} />;
-  }
-
-  if (submitted) {
-    return <ExamResult exam={exam} completed={completed} answers={answers} onReset={handleReset} />;
-  }
+  if (!loaded) return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Plus Jakarta Sans',sans-serif",background:"#F4F4F8",color:"#374151"}}>Lädt...</div>;
+  if (!started) return <ExamIntro exam={exam} onStart={handleStart} />;
+  if (submitted) return <ExamResult exam={exam} completed={completed} answers={answers} onReset={handleReset} />;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:"#F4F4F8",color:"#111827",minHeight:"100vh"}}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; }
 
+        /* NAV */
+        .xnav {
+          position: sticky; top: 0; z-index: 50;
+          background: #4F46E5;
+          padding: 0 32px; height: 56px;
+          display: flex; align-items: center; gap: 12px;
+        }
+        .xnav-logo {
+          font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 900;
+          color: #fff; text-decoration: none; margin-right: auto; letter-spacing: -0.5px;
+        }
+        .xnav-back {
+          display: flex; align-items: center; gap: 6px;
+          color: rgba(255,255,255,0.85); text-decoration: none;
+          font-size: 13px; font-weight: 600;
+          padding: 7px 14px; border-radius: 8px;
+          background: rgba(255,255,255,0.15);
+          transition: background 0.2s;
+        }
+        .xnav-back:hover { background: rgba(255,255,255,0.25); color: #fff; }
+        .xnav-clear {
+          color: #FCA5A5; font-size: 13px; font-weight: 600;
+          background: rgba(239,68,68,0.2); border: none;
+          padding: 7px 14px; border-radius: 8px;
+          cursor: pointer; transition: background 0.2s;
+        }
+        .xnav-clear:hover { background: rgba(239,68,68,0.35); }
+
+        /* BODY */
+        .xbody { max-width: 820px; margin: 0 auto; padding: 24px 20px 120px; }
+
+        /* HEADER CARD */
+        .xheader {
+          background: #fff; border-radius: 16px; padding: 22px 24px;
+          margin-bottom: 14px;
+          border-left: 4px solid #4F46E5;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .xheader-title {
+          font-family: 'Nunito', sans-serif; font-size: 19px; font-weight: 900;
+          color: #111827; margin-bottom: 10px; letter-spacing: -0.3px;
+        }
+        .xmeta { display: flex; gap: 8px; flex-wrap: wrap; }
+        .xchip {
+          background: #EEF2FF; color: #4338CA;
+          font-size: 12px; font-weight: 700;
+          padding: 4px 12px; border-radius: 20px;
+        }
+
+        /* SCENARIO */
+        .xscenario {
+          background: #FFFBEB; border: 1px solid #FDE68A;
+          border-radius: 12px; padding: 16px; margin-bottom: 14px;
+        }
+        .xscenario summary {
+          font-size: 13px; font-weight: 700; color: #92400E;
+          cursor: pointer; display: flex; align-items: center; gap: 6px;
+        }
+        .xscenario-text {
+          color: #78350F; font-size: 13px; line-height: 1.7;
+          white-space: pre-line; margin-top: 12px; padding-top: 12px;
+          border-top: 1px solid #FDE68A;
+        }
+
+        /* STICKY BAR */
+        .xsticky { position: sticky; top: 56px; z-index: 40; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .xtimer-wrap { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .xnavbar {
+          background: #fff; border-radius: 12px; padding: 10px 16px;
+          display: flex; align-items: center; gap: 8px; overflow-x: auto;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .xnavlabel { font-size: 12px; font-weight: 600; color: #9CA3AF; white-space: nowrap; }
+        .xnavchip {
+          padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+          text-decoration: none; white-space: nowrap; transition: all 0.2s;
+        }
+        .xnavchip.done { background: #DCFCE7; color: #15803D; }
+        .xnavchip.partial { background: #FEF3C7; color: #B45309; }
+        .xnavchip.none { background: #F3F4F6; color: #6B7280; }
+        .xnavchip:hover { background: #EEF2FF; color: #4F46E5; }
+
+        .xprogress {
+          background: #fff; border-radius: 12px; padding: 12px 18px;
+          display: flex; align-items: center; gap: 14px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .xprog-label { font-size: 13px; font-weight: 600; color: #6B7280; white-space: nowrap; }
+        .xprog-track { flex: 1; height: 8px; background: #E5E7EB; border-radius: 4px; overflow: hidden; }
+        .xprog-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #4F46E5, #818CF8); transition: width 0.4s; }
+        .xprog-done { font-size: 12px; font-weight: 700; color: #15803D; white-space: nowrap; }
+
+        /* SECTION CARD */
+        .xsection {
+          background: #fff; border-radius: 16px; padding: 24px;
+          margin-bottom: 14px; scroll-margin-top: 160px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .xsection-title {
+          font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900;
+          color: #111827; margin-bottom: 20px; padding-bottom: 14px;
+          border-bottom: 2px solid #EEF2FF;
+          display: flex; align-items: center; gap: 10px;
+        }
+        .xsection-icon {
+          width: 28px; height: 28px; background: #4F46E5;
+          border-radius: 7px; display: flex; align-items: center;
+          justify-content: center; font-size: 12px; flex-shrink: 0;
+        }
+
+        /* QUESTION */
+        .xq { padding: 18px 0; border-top: 1px solid #F3F4F6; }
+        .xq:first-of-type { border-top: none; padding-top: 0; }
+        .xq.done { background: #F0FDF4; border-radius: 12px; padding: 16px; margin: 4px -12px; border-top: none; }
+
+        .xq-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .xq-title { font-size: 14px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 8px; }
+        .xq-done-mark { color: #16A34A; }
+        .xq-pts { background: #4F46E5; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+
+        .xq-desc {
+          background: #F8FAFC; border: 1px solid #E2E8F0;
+          border-radius: 10px; padding: 16px;
+          font-size: 13px; color: #1E293B; line-height: 1.75;
+          white-space: pre; overflow-x: auto; margin-bottom: 14px;
+          font-family: 'Courier New', Courier, monospace;
+        }
+
+        .xhint {
+          background: #FFFBEB; border: 1px solid #FDE68A;
+          border-radius: 8px; padding: 10px 14px;
+          font-size: 13px; color: #92400E; margin-bottom: 12px; font-weight: 500;
+        }
+
+        .xanswer-label { font-size: 11px; font-weight: 800; color: #4F46E5; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+        .xanswer-ta {
+          width: 100%; height: 200px; padding: 14px 16px;
+          background: #fff; border: 2px solid #E5E7EB;
+          border-radius: 10px; color: #111827; font-size: 14px; line-height: 1.6;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          resize: vertical; outline: none; transition: border-color 0.2s;
+        }
+        .xanswer-ta::placeholder { color: #CBD5E1; }
+        .xanswer-ta:focus { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+
+        .xdone-row { margin-top: 10px; display: flex; justify-content: flex-end; }
+        .xdone-btn {
+          padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700;
+          cursor: pointer; transition: all 0.2s; border: 2px solid;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .xdone-btn.yes { background: #DCFCE7; color: #15803D; border-color: #86EFAC; }
+        .xdone-btn.yes:hover { background: #BBF7D0; }
+        .xdone-btn.no { background: #F8FAFC; color: #64748B; border-color: #E2E8F0; }
+        .xdone-btn.no:hover { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
+
+        @media (max-width: 768px) {
+          .xnav { padding: 0 16px; }
+          .xbody { padding: 16px 14px 80px; }
+        }
+      `}</style>
+
+      {/* NAV */}
+      <nav className="xnav">
+        <Link href="/" className="xnav-logo">Lernarena</Link>
+        <Link href="/pruefungen" className="xnav-back">← Prüfungen</Link>
+        <button className="xnav-clear" onClick={clearAll}>🗑️ Löschen</button>
+      </nav>
+
+      <div className="xbody">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-start">
-            <Link href="/pruefungen" className="text-blue-600 hover:underline text-sm">
-              ← Zurück zur Übersicht
-            </Link>
-            <button
-              onClick={clearAllAnswers}
-              className="text-red-600 hover:text-red-800 text-sm"
-            >
-              🗑️ Alles löschen
-            </button>
+        <div className="xheader">
+          <div className="xheader-title">{exam.title}</div>
+          <div className="xmeta">
+            <span className="xchip">🏢 {exam.company}</span>
+            <span className="xchip">⏱ {exam.duration} Min</span>
+            <span className="xchip">📊 {exam.totalPoints} Punkte</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mt-4">
-            {exam.title} - {exam.company}
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {exam.duration} Minuten • {exam.totalPoints} Punkte
-          </p>
         </div>
 
         {/* Szenario */}
         {exam.scenario && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+          <div className="xscenario">
             <details>
-              <summary className="font-semibold text-gray-800 cursor-pointer">
-                📖 Ausgangssituation (klicken zum Ein-/Ausblenden)
-              </summary>
-              <p className="text-gray-700 text-sm whitespace-pre-line mt-2">
-                {exam.scenario}
-              </p>
+              <summary>📖 Ausgangssituation anzeigen</summary>
+              <p className="xscenario-text">{exam.scenario}</p>
             </details>
           </div>
         )}
 
-        {/* Timer, Navigation & Fortschritt */}
-        <div className="mb-6 sticky top-4 z-10 space-y-2">
-          <ExamTimer
-            durationMinutes={exam.duration}
-            onTimeUp={() => alert("Die Prüfungszeit ist abgelaufen!")}
-          />
-
-          {/* Navigation */}
-          <div className="bg-white border rounded-lg px-4 py-2 flex items-center gap-2 overflow-x-auto">
-            <span className="text-sm text-gray-500 mr-2">Gehe zu:</span>
-            {exam.sections.map((section, index) => {
-              const sectionQuestions = section.questions;
-              const sectionCompleted = sectionQuestions.every((q) => completed[q.id]);
-              const sectionPartial = sectionQuestions.some((q) => completed[q.id]);
-
+        {/* Sticky Bar */}
+        <div className="xsticky">
+          <div className="xtimer-wrap">
+            <ExamTimer durationMinutes={exam.duration} onTimeUp={() => alert("Zeit abgelaufen!")} />
+          </div>
+          <div className="xnavbar">
+            <span className="xnavlabel">Gehe zu:</span>
+            {exam.sections.map((s, i) => {
+              const done = s.questions.every(q => completed[q.id]);
+              const partial = s.questions.some(q => completed[q.id]);
               return (
-
-                <a key={section.id}
-                  href={`#${section.id}`}
-                  className={`px-3 py-1 rounded text-sm font-medium transition whitespace-nowrap ${sectionCompleted
-                    ? "bg-green-100 text-green-700 hover:bg-green-200"
-                    : sectionPartial
-                      ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                >
-                  {sectionCompleted && "✓ "}HS{index + 1}
+                <a key={s.id} href={`#${s.id}`} className={`xnavchip ${done ? "done" : partial ? "partial" : "none"}`}>
+                  {done && "✓ "}HS{i + 1}
                 </a>
               );
             })}
           </div>
-
-          {/* Fortschritt */}
-          <div className="bg-white border rounded-lg px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">
-                📝 {progress.completed} von {progress.total} Aufgaben erledigt
-              </span>
-              <div className="w-32 bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-green-600 h-2 rounded-full transition-all"
-                  style={{ width: `${(progress.completed / progress.total) * 100}%` }}
-                />
-              </div>
+          <div className="xprogress">
+            <span className="xprog-label">📝 {doneCount} / {totalQ} erledigt</span>
+            <div className="xprog-track">
+              <div className="xprog-fill" style={{ width: `${pct}%` }} />
             </div>
-            {progress.completed === progress.total && (
-              <span className="text-green-600 text-sm font-medium">✓ Vollständig</span>
-            )}
+            {doneCount === totalQ && totalQ > 0 && <span className="xprog-done">✓ Vollständig</span>}
           </div>
         </div>
 
-        {/* Fragen */}
-        {exam.sections.map((section) => (
-          <div key={section.id} id={section.id} className="bg-white rounded-lg shadow-md p-6 mb-6 scroll-mt-40">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        {/* Sections */}
+        {exam.sections.map(section => (
+          <div key={section.id} id={section.id} className="xsection">
+            <h2 className="xsection-title">
+              <span className="xsection-icon">📋</span>
               {section.title}
             </h2>
 
-            {section.questions.map((question) => (
-              <div
-                key={question.id}
-                className={`border-t pt-4 ${completed[question.id] ? "bg-green-50 -mx-6 px-6 pb-4" : ""}`}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-2">
-                    {completed[question.id] && (
-                      <span className="text-green-600">✓</span>
-                    )}
-                    <h3 className={`font-medium ${completed[question.id] ? "text-green-800" : "text-gray-800"}`}>
-                      {question.title}
-                    </h3>
+            {section.questions.map(q => (
+              <div key={q.id} className={`xq ${completed[q.id] ? "done" : ""}`}>
+                <div className="xq-header">
+                  <div className="xq-title">
+                    {completed[q.id] && <span className="xq-done-mark">✓</span>}
+                    {q.title}
                   </div>
-                  {question.type !== "info" && (
-                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-                      {question.points} Punkte
-                    </span>
-                  )}
+                  {q.type !== "info" && <span className="xq-pts">{q.points} Pkt</span>}
                 </div>
 
-                <pre className="text-gray-700 whitespace-pre-wrap font-mono text-sm leading-relaxed bg-gray-50 p-4 rounded-lg overflow-x-auto">
-                  {question.description}
-                </pre>
+                <pre className="xq-desc">{q.description}</pre>
 
-                {/* Bild */}
-                {question.image && (
-                  <img
-                    src={question.image}
-                    alt="Grafik zur Aufgabe"
-                    className="mt-4 rounded-lg"
-                  />
-                )}
+                {q.image && <img src={q.image} alt="Grafik" style={{ marginBottom: 14, borderRadius: 10, maxWidth: "100%" }} />}
+                {q.hint && <div className="xhint">💡 {q.hint}</div>}
 
-                {/* Hinweis */}
-                {question.hint && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-4">
-                    <p className="text-amber-800 text-sm">
-                      💡 Hinweis: {question.hint}
-                    </p>
-                  </div>
-                )}
-
-                {/* Antwort-Feld (nicht bei Info-Blöcken) */}
-                {question.type !== "info" && (
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Ihre Antwort:
-                    </label>
-                    {question.type === "diagram" ? (
-                      <DiagramTool onSave={(data) => updateAnswer(question.id, data)} />
-                    ) : question.type === "fillBlanks" ? (
-                      <FillBlanksSQL questionId={question.id} />
+                {q.type !== "info" && (
+                  <>
+                    <div className="xanswer-label">Deine Antwort</div>
+                    {q.type === "diagram" ? (
+                      <DiagramTool onSave={data => updateAnswer(q.id, data)} />
+                    ) : q.type === "fillBlanks" ? (
+                      <FillBlanksSQL questionId={q.id} />
                     ) : (
                       <textarea
-                        className="w-full h-64 p-4 border rounded-lg font-mono text-sm bg-white text-black placeholder-gray-400"
+                        className="xanswer-ta"
                         placeholder="Antwort hier eingeben..."
-                        value={answers[question.id] || ""}
-                        onChange={(e) => updateAnswer(question.id, e.target.value)}
+                        value={answers[q.id] || ""}
+                        onChange={e => updateAnswer(q.id, e.target.value)}
                       />
                     )}
-                  </div>
-                )}
-
-                {/* Fertig Button (nicht bei Info-Blöcken) */}
-                {question.type !== "info" && (
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      onClick={() => toggleCompleted(question.id)}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${completed[question.id]
-                        ? "bg-green-100 text-green-700 hover:bg-green-200"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                    >
-                      {completed[question.id] ? "✓ Erledigt" : "Als erledigt markieren"}
-                    </button>
-                  </div>
+                    <div className="xdone-row">
+                      <button onClick={() => toggleCompleted(q.id)} className={`xdone-btn ${completed[q.id] ? "yes" : "no"}`}>
+                        {completed[q.id] ? "✓ Erledigt" : "Als erledigt markieren"}
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             ))}
           </div>
         ))}
 
-        {/* Abgabe */}
-        <SubmitExam
-          sections={exam.sections}
-          completed={completed}
-          onSubmit={handleSubmit}
-        />
+        <SubmitExam sections={exam.sections} completed={completed} onSubmit={handleSubmit} />
       </div>
     </div>
   );
